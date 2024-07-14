@@ -23,9 +23,9 @@ st.set_page_config(
 )
 
 # GitHub URLs for your docx files
-excel_url = "https://github.com/nagarajuprojects/main/blob/main/excel.docx"
-power_bi_url = "https://github.com/nagarajuprojects/main/blob/main/powerbisyllabus.docx"
-sql_url = "https://github.com/nagarajuprojects/main/blob/main/sqlcoursesyllabus.docx"
+excel_url = "https://raw.githubusercontent.com/nagarajuprojects/repository/main/excel.docx"
+power_bi_url = "https://raw.githubusercontent.com/nagarajuprojects/repository/main/powerbisyllabus.docx"
+sql_url = "https://raw.githubusercontent.com/nagarajuprojects/repository/main/sqlcoursesyllabus.docx"
 
 # Sidebar for navigation
 with st.sidebar:
