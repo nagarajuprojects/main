@@ -5,8 +5,8 @@ import docx
 from io import BytesIO
 
 # Function to fetch content from GitHub
-def fetch_docx_from_github(https://github.com/nagarajuprojects/main.git):
-    response = requests.get(https://github.com/nagarajuprojects/main.git)
+def fetch_docx_from_github(file_url):
+    response = requests.get(file_url)
     docx_file = BytesIO(response.content)
     doc = docx.Document(docx_file)
     full_text = []
