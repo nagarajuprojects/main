@@ -8,7 +8,7 @@ CORRECT_PASSWORD = "123"
 # Page configuration should be set before any Streamlit elements are created
 st.set_page_config(
     page_title="Operations",
-    page_icon="",
+    page_icon="pbiexellogo.png",
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items={
