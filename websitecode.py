@@ -6,13 +6,18 @@ from io import BytesIO
 
 # Function to fetch content from GitHub
 def fetch_docx_from_github(file_url):
-    response = requests.get(file_url)
-    docx_file = BytesIO(response.content)
-    doc = docx.Document(docx_file)
-    full_text = []
-    for para in doc.paragraphs:
-        full_text.append(para.text)
-    return "\n".join(full_text)
+    try:
+        response = requests.get(file_url)
+        response.raise_for_status()  # Raise exception for bad response status
+        docx_file = BytesIO(response.content)
+        doc = docx.Document(docx_file)
+        full_text = []
+        for para in doc.paragraphs:
+            full_text.append(para.text)
+        return "\n".join(full_text)
+    except requests.exceptions.RequestException as e:
+        st.error(f"Error fetching document: {e}")
+        return None
 
 # Page configuration
 st.set_page_config(
@@ -43,6 +48,10 @@ with st.sidebar:
         }
     )
 
+# Clear state when changing pages
+if page_selection != "Courses":
+    st.session_state.pop("selected_course", None)
+
 # Home Page
 if page_selection == "Home":
     st.title("Welcome to BI 2 AI Technologies Training")
@@ -67,24 +76,26 @@ elif page_selection == "Courses":
     course_selection = st.selectbox("Select a Course", ["Excel", "Power BI", "SQL"])
 
     if course_selection == "Excel":
-        st.title("Excel Course Content")
-        excel_content = fetch_docx_from_github(excel_url)
-        st.write(excel_content)
-
+        st.session_state.selected_course = "Excel"
     elif course_selection == "Power BI":
-        st.title("Power BI Course Content")
-        power_bi_content = fetch_docx_from_github(power_bi_url)
-        st.write(power_bi_content)
-
+        st.session_state.selected_course = "Power BI"
     elif course_selection == "SQL":
-        st.title("SQL Course Content")
-        sql_content = fetch_docx_from_github(sql_url)
-        st.write(sql_content)
+        st.session_state.selected_course = "SQL"
 
 # Content Page
 elif page_selection == "Content":
-    st.title("Content Page")
-    st.write("This page displays content from selected courses.")
+    st.title(f"{st.session_state.selected_course} Course Content")
+    if st.session_state.selected_course == "Excel":
+        content = fetch_docx_from_github(excel_url)
+    elif st.session_state.selected_course == "Power BI":
+        content = fetch_docx_from_github(power_bi_url)
+    elif st.session_state.selected_course == "SQL":
+        content = fetch_docx_from_github(sql_url)
+    
+    if content:
+        st.write(content)
+    else:
+        st.warning("Failed to fetch course content. Please try again later.")
 
 # Contact Page
 elif page_selection == "Contact":
