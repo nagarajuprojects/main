@@ -44,19 +44,19 @@ elif page_selection == "Courses":
     st.write("""
         Master SQL for database management and data manipulation. Our course includes SQL queries, joins, subqueries, and database design.
         - Duration: 4 weeks
-        - Price: $250
+        - Price: ₹10000
     """)
     st.header("Excel")
     st.write("""
         Become an Excel expert with our training. Learn advanced formulas, pivot tables, data analysis, and VBA for automation.
         - Duration: 3 weeks
-        - Price: $200
+        - Price: ₹5000
     """)
     st.header("VBA")
     st.write("""
         Automate your Excel tasks with VBA. Our course covers VBA programming, macros, and creating custom functions.
         - Duration: 2 weeks
-        - Price: $150
+        - Price: ₹10000
     """)
 
 # Contact Page
