@@ -18,20 +18,6 @@ st.set_page_config(
     }
 )
 
-# Inject custom CSS to set the background color
-st.markdown(
-    """
-    <style>
-    body {
-        background-color: #f0f8ff;
-    }
-    .css-18e3th9 {
-        background-color: #f0f8ff;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
 
 # Function to display the main content after login
 def display_main_content():
