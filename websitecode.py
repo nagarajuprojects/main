@@ -1,201 +1,112 @@
 import streamlit as st
-import pandas as pd
-import plotly.express as px
-from docx import Document
+from streamlit_option_menu import option_menu
+import docx
 
-CORRECT_USER_ID = "Admin"
-CORRECT_PASSWORD = "123"
+# Function to read content from docx files
+def read_docx(file_path):
+    doc = docx.Document(file_path)
+    full_text = []
+    for para in doc.paragraphs:
+        full_text.append(para.text)
+    return "\n".join(full_text)
 
-# Page configuration should be set before any Streamlit elements are created
+# Page configuration
 st.set_page_config(
-    page_title="Operations",
-    page_icon="🧊",
+    page_title="BI 2 AI Technologies Training",
+    page_icon="pbiexellogo.png",
     layout="wide",
-    initial_sidebar_state="expanded",
-    menu_items={
-        'Get Help': 'https://www.extremelycoolapp.com/help',
-        'Report a bug': "https://www.extremelycoolapp.com/bug",
-        'About': "# This is a header. This is an *extremely* cool app!"
-    }
+    initial_sidebar_state="expanded"
 )
 
-# Inject custom CSS to set the background color
+# Sidebar for navigation
+with st.sidebar:
+    page_selection = option_menu(
+        "Navigation", 
+        ["Home", "Courses", "Contact"],
+        icons=["house", "book", "envelope"],
+        menu_icon="cast", 
+        default_index=0,
+        styles={
+            "container": {"padding": "5px", "background-color": "#f0f2f6"},
+            "icon": {"color": "blue", "font-size": "25px"}, 
+            "nav-link": {"font-size": "16px", "text-align": "left", "margin": "0px", "--hover-color": "#eee"},
+            "nav-link-selected": {"background-color": "#0c5a8c"},
+        }
+    )
+
+# Home Page
+if page_selection == "Home":
+    st.title("Welcome to BI 2 AI Technologies Training")
+    st.image("pbiexellogo.png", width=250)  # Replace with your logo URL
+    st.header("Learn Power BI, SQL, Excel, VBA")
+    st.write("""
+        We offer comprehensive training in Power BI, SQL, Excel, and VBA. Our courses are designed to help you master these tools and become proficient in data analysis and visualization. 
+        Whether you are a beginner or looking to advance your skills, we have the right course for you.
+    """)
+    st.subheader("Why Choose Us?")
+    st.write("""
+        - Expert Instructors
+        - Hands-on Training
+        - Comprehensive Curriculum
+        - Flexible Schedule
+        - Certification
+    """)
+
+# Courses Page
+elif page_selection == "Courses":
+    st.title("Our Courses @ ₹15000")
+    course_selection = st.selectbox("Select a Course", ["Excel", "Power BI", "SQL"])
+
+    if course_selection == "Excel":
+        st.title("Excel Course Content")
+        excel_content = read_docx("excel.docx")
+        st.write(excel_content)
+
+    elif course_selection == "Power BI":
+        st.title("Power BI Course Content")
+        power_bi_content = read_docx("powerbisyllabus.docx")
+        st.write(power_bi_content)
+
+    elif course_selection == "SQL":
+        st.title("SQL Course Content")
+        sql_content = read_docx("sqlcoursesyllabus.docx")
+        st.write(sql_content)
+
+# Content Page
+elif page_selection == "Content":
+    st.title("Content Page")
+    st.write("This page displays content from selected courses.")
+
+# Contact Page
+elif page_selection == "Contact":
+    st.title("Contact Us")
+    st.write("We'd love to hear from you! Fill out the form below to get in touch.")
+    
+    with st.form("contact_form"):
+        name = st.text_input("Name")
+        email = st.text_input("Email")
+        message = st.text_area("Message")
+        
+        submitted = st.form_submit_button("Submit")
+        if submitted:
+            st.write(f"Thank you {name}! We have received your message and will get back to you at {email}.")
+
+# Footer
 st.markdown(
     """
     <style>
-    body {
-        background-color: #f0f8ff;
-    }
-    .css-18e3th9 {
-        background-color: #f0f8ff;
+    .footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background-color: #f0f2f6;
+        text-align: center;
+        padding: 10px;
     }
     </style>
+    <div class="footer">
+    <p>© 2024 Power BI, Excel, SQL & Cloud Trainings. All rights reserved.</p>
+    </div>
     """,
     unsafe_allow_html=True
 )
-
-# Function to display the main content after login
-def display_main_content():
-    # Load the primary CSV file
-    try:
-        df = pd.read_csv("inputfile.csv")
-    except FileNotFoundError:
-        st.error("The file 'inputfile.csv' was not found.")
-        return
-
-    # Load the secondary CSV file
-    try:
-        df1 = pd.read_csv("inputfile1.csv")
-    except FileNotFoundError:
-        st.warning("The file 'inputfile1.csv' was not found. Proceeding with only 'inputfile.csv'.")
-        df1 = pd.DataFrame()  # Empty DataFrame if the file is not found
-
-    # Check if the necessary columns exist
-    if 'UserId' not in df.columns:
-        st.error("The column 'UserId' is missing from 'inputfile.csv'.")
-        return
-    if not df1.empty and 'Userid' not in df1.columns:
-        st.error("The column 'Userid' is missing from 'inputfile1.csv'.")
-        return
-
-    # Perform a left join if the secondary DataFrame is not empty
-    if not df1.empty:
-        df_merged = pd.merge(df, df1, left_on='UserId', right_on='Userid', how='left')
-    else:
-        df_merged = df
-
-    st.write(df_merged)
-
-    df_merged['Date'] = pd.to_datetime(df_merged['CreationDate']).dt.date
-    df1_copy = df_merged.copy()
-
-    # Group by UserId, Date, and Operation to count occurrences
-    summary_df = df1_copy.groupby(['Fullname','UserId', 'Date', 'Operation']).size().reset_index(name='Count of Operations')
-
-    final_summary_df = summary_df.groupby('Fullname').agg({
-        'UserId':'first',
-        'Date': 'first',
-        'Operation': 'first',
-        'Count of Operations': 'sum'
-    }).reset_index()
-
-    st.subheader("Operation Count by UserId, Date, and Operation")
-    st.table(final_summary_df[['Fullname','UserId', 'Date', 'Operation', 'Count of Operations']])
-
-    # Sidebar filters for Operation and CreationDate
-    st.sidebar.header("Filters")
-    selected_operation = st.sidebar.multiselect("Select Operation(s)", df_merged["Operation"].unique())
-    selected_dates = st.sidebar.multiselect("Select Date(s)", df_merged["CreationDate"].unique())
-
-    # Apply filters to create filtered DataFrame
-    if selected_operation:
-        df_merged = df_merged[df_merged['Operation'].isin(selected_operation)]
-    if selected_dates:
-        df_merged = df_merged[df_merged['CreationDate'].isin(selected_dates)]
-
-    # Group by Date to count occurrences of Operation
-    count_by_date = df_merged.groupby('Date').size().reset_index(name='Count of Operations')
-
-    # Plotting bar chart for Count of Operations by CreationDate
-    st.subheader("Count of Operations by Creation Date")
-    fig_bar = px.bar(count_by_date, x='Date', y='Count of Operations', text='Count of Operations',
-                     template='seaborn', title='Count of Operations by Creation Date')
-    fig_bar.update_traces(texttemplate='%{text:.2s}', textposition='outside')
-    fig_bar.update_layout(xaxis_title='Creation Date', yaxis_title='Count of Operations')
-    st.plotly_chart(fig_bar, use_container_width=True)
-
-    # Group by Operation to sum RecordType
-    record_type_summary = df_merged.groupby('Operation')['RecordType'].sum().reset_index()
-
-    # Plotting pie chart for Sum of RecordType by Operation
-    st.subheader("Sum of RecordType by Operation")
-    fig_pie = px.pie(record_type_summary, values='RecordType', names='Operation', 
-                     title='Sum of RecordType by Operation', hole=0.5)
-    fig_pie.update_traces(textposition='inside', textinfo='percent+label')
-    st.plotly_chart(fig_pie, use_container_width=True)
-
-# Function to read content from a DOCX file
-def read_docx(file):
-    document = Document(file)
-    doc_text = []
-    for para in document.paragraphs:
-        doc_text.append(para.text)
-    return '\n'.join(doc_text)
-
-# Function to display the course selection page
-def display_course_selection():
-    st.title("Course Syllabus")
-
-    option = st.selectbox("Select a Course", ("Excel", "Power BI", "SQL"))
-
-    if option == "Excel":
-        st.session_state.selected_course = "excel.docx"
-    elif option == "Power BI":
-        st.session_state.selected_course = "powerbisyllabus.docx"
-    elif option == "SQL":
-        st.session_state.selected_course = "sqlcoursesyllabus.docx"
-
-    if st.button("View Syllabus"):
-        st.experimental_set_query_params(logged_in=True, page="content")
-
-# Function to display the content page
-def display_content():
-    st.title("Course Content")
-
-    if 'selected_course' in st.session_state:
-        content = read_docx(st.session_state.selected_course)
-        st.write(content)
-    else:
-        st.write("No course selected. Please go back and select a course.")
-
-# Initialize page state
-if "loggedin" not in st.session_state:
-    st.session_state.loggedin = False
-
-# Check if logged_in query parameter is set to True
-query_params = st.experimental_get_query_params()
-if query_params.get('logged_in') == ['true']:
-    st.session_state.loggedin = True
-
-# Check if logged in and display content accordingly
-if st.session_state.loggedin:
-    # Navigation links in the sidebar
-    st.sidebar.header("Navigation")
-
-    # Determine which page is active based on query parameters
-    is_page_main = query_params.get('page', ['main'])[0] == 'main'
-    is_page_courses = query_params.get('page', ['main'])[0] == 'courses'
-    is_page_content = query_params.get('page', ['main'])[0] == 'content'
-
-    # Highlight the active button based on the current page
-    if is_page_main:
-        page1_button = st.sidebar.button("Main", key='page1_button', help="Go to Main Page", on_click=lambda: st.experimental_set_query_params(logged_in=True, page="main"))
-        page2_button = st.sidebar.button("Courses", key='page2_button', help="Go to Courses Page", on_click=lambda: st.experimental_set_query_params(logged_in=True, page="courses"))
-    elif is_page_courses:
-        page1_button = st.sidebar.button("Main", key='page1_button', help="Go to Main Page", on_click=lambda: st.experimental_set_query_params(logged_in=True, page="main"))
-        page2_button = st.sidebar.button("Courses", key='page2_button', help="Go to Courses Page", on_click=lambda: st.experimental_set_query_params(logged_in=True, page="courses"))
-    elif is_page_content:
-        page1_button = st.sidebar.button("Main", key='page1_button', help="Go to Main Page", on_click=lambda: st.experimental_set_query_params(logged_in=True, page="main"))
-        page2_button = st.sidebar.button("Courses", key='page2_button', help="Go to Courses Page", on_click=lambda: st.experimental_set_query_params(logged_in=True, page="courses"))
-
-    # Display the appropriate content based on the current page
-    if is_page_main:
-        display_main_content()
-    elif is_page_courses:
-        display_course_selection()
-    elif is_page_content:
-        display_content()
-else:
-    def login():
-        if st.session_state.user_id == CORRECT_USER_ID and st.session_state.password == CORRECT_PASSWORD:
-            st.session_state.loggedin = True
-            st.experimental_set_query_params(logged_in=True, page="main")
-        else:
-            st.session_state.loggedin = False
-            st.error("Invalid username or password")
-
-    st.header("Login")
-    st.text_input("User ID", key="user_id")
-    st.text_input("Password", type="password", key="password")
-    if st.button("Login"):
-        login()
