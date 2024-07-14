@@ -3,7 +3,7 @@ from streamlit_option_menu import option_menu
 import docx
 
 # Function to read content from docx files
-def read_docx("https://github.com/nagarajuprojects/main/tree/main"):
+def read_docx(excel.docx):
     doc = docx.Document("https://github.com/nagarajuprojects/main/tree/main")
     full_text = []
     for para in doc.paragraphs:
