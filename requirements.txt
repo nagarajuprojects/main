@@ -4,6 +4,7 @@ numpy
 matplotlib
 plotly
 streamlit_option_menu
+option_menu
 plotly.express
 docx
 BytesIO
