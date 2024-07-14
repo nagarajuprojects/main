@@ -1,106 +1,98 @@
 import streamlit as st
-from streamlit_option_menu import option_menu
+import pandas as pd
+import plotly.express as px
 
-# Page configuration
+CORRECT_USER_ID = "Admin"
+CORRECT_PASSWORD = "123"
+
+# Page configuration should be set before any Streamlit elements are created
 st.set_page_config(
-    page_title="Power BI, Excel, SQL & Cloud Trainings",
-    page_icon="📊",
+    page_title="Operations",
+    page_icon="",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
+    menu_items={
+        'Get Help': 'https://www.extremelycoolapp.com/help',
+        'Report a bug': "https://www.extremelycoolapp.com/bug",
+        'About': "# This is a header. This is an *extremely* cool app!"
+    }
 )
 
-# Sidebar for navigation
-with st.sidebar:
-    page_selection = option_menu(
-        "Navigation", 
-        ["Home", "Courses", "Contact"],
-        icons=["house", "book", "envelope"],
-        menu_icon="cast", 
-        default_index=0,
-        styles={
-            "container": {"padding": "5px", "background-color": "#f0f2f6"},
-            "icon": {"color": "blue", "font-size": "25px"}, 
-            "nav-link": {"font-size": "16px", "text-align": "left", "margin": "0px", "--hover-color": "#eee"},
-            "nav-link-selected": {"background-color": "#0c5a8c"},
-        }
-    )
-
-# Home Page
-if page_selection == "Home":
-    st.title("Welcome to Power BI, Excel, SQL & Cloud Trainings")
-    st.image("https://example.com/logo.png", width=250)  # Replace with your logo URL
-    st.header("Learn Power BI, SQL, Excel, VBA")
-    st.write("""
-        We offer comprehensive training in Power BI, SQL, Excel, and VBA. Our courses are designed to help you master these tools and become proficient in data analysis and visualization. 
-        Whether you are a beginner or looking to advance your skills, we have the right course for you.
-    """)
-    st.subheader("Why Choose Us?")
-    st.write("""
-        - Expert Instructors
-        - Hands-on Training
-        - Comprehensive Curriculum
-        - Flexible Schedule
-        - Certification
-    """)
-
-# Courses Page
-elif page_selection == "Courses":
-    st.title("Our Courses")
-    st.header("Power BI")
-    st.write("""
-        Learn to create interactive dashboards and reports with Power BI. Our course covers data modeling, DAX, and Power BI service.
-        - **Duration**: 4 weeks
-        - **Price**: $300
-    """)
-    st.header("SQL")
-    st.write("""
-        Master SQL for database management and data manipulation. Our course includes SQL queries, joins, subqueries, and database design.
-        - **Duration**: 4 weeks
-        - **Price**: $250
-    """)
-    st.header("Excel")
-    st.write("""
-        Become an Excel expert with our training. Learn advanced formulas, pivot tables, data analysis, and VBA for automation.
-        - **Duration**: 3 weeks
-        - **Price**: $200
-    """)
-    st.header("VBA")
-    st.write("""
-        Automate your Excel tasks with VBA. Our course covers VBA programming, macros, and creating custom functions.
-        - **Duration**: 2 weeks
-        - **Price**: $150
-    """)
-
-# Contact Page
-elif page_selection == "Contact":
-    st.title("Contact Us")
-    st.write("We'd love to hear from you! Fill out the form below to get in touch.")
-    
-    with st.form("contact_form"):
-        name = st.text_input("Name")
-        email = st.text_input("Email")
-        message = st.text_area("Message")
-        
-        submitted = st.form_submit_button("Submit")
-        if submitted:
-            st.write(f"Thank you {name}! We have received your message and will get back to you at {email}.")
-
-# Footer
+# Inject custom CSS to set the background color
 st.markdown(
     """
     <style>
-    .footer {
-        position: fixed;
-        bottom: 0;
-        width: 100%;
-        background-color: #f0f2f6;
-        text-align: center;
-        padding: 10px;
+    body {
+        background-color: #f0f8ff;
+    }
+    .css-18e3th9 {
+        background-color: #f0f8ff;
     }
     </style>
-    <div class="footer">
-    <p>© 2024 Power BI, Excel, SQL & Cloud Trainings. All rights reserved.</p>
-    </div>
     """,
     unsafe_allow_html=True
 )
+
+# Function to display the main content after login
+def display_main_content():
+    # Load the primary CSV file
+    try:
+        df = pd.read_csv("inputfile.csv")
+    except FileNotFoundError:
+        st.error("The file 'inputfile.csv' was not found.")
+        return
+
+    # Load the secondary CSV file
+    try:
+        df1 = pd.read_csv("inputfile1.csv")
+    except FileNotFoundError:
+        st.warning("The file 'inputfile1.csv' was not found. Proceeding with only 'inputfile.csv'.")
+        df1 = pd.DataFrame()  # Empty DataFrame if the file is not found
+
+    # Check if the necessary columns exist
+    if 'UserId' not in df.columns:
+        st.error("The column 'UserId' is missing from 'inputfile.csv'.")
+        return
+    if not df1.empty and 'Userid' not in df1.columns:
+        st.error("The column 'Userid' is missing from 'inputfile1.csv'.")
+        return
+
+    # Perform a left join if the secondary DataFrame is not empty
+    if not df1.empty:
+        df_merged = pd.merge(df, df1, left_on='UserId', right_on='Userid', how='left')
+    else:
+        df_merged = df
+
+    st.write(df_merged)
+
+    df_merged['Date'] = pd.to_datetime(df_merged['CreationDate']).dt.date
+    df1_copy = df_merged.copy()
+
+    # Group by UserId, Date, and Operation to count occurrences
+    summary_df = df1_copy.groupby(['Fullname','UserId', 'Date', 'Operation']).size().reset_index(name='Count of Operations')
+
+    final_summary_df = summary_df.groupby('Fullname').agg({
+        'UserId':'first',
+        'Date': 'first',
+        'Operation': 'first',
+        'Count of Operations': 'sum'
+    }).reset_index()
+
+    st.subheader("Operation Count by UserId, Date, and Operation")
+    st.table(final_summary_df[['Fullname','UserId', 'Date', 'Operation', 'Count of Operations']])
+
+    # Sidebar filters for Operation and CreationDate
+    st.sidebar.header("Filters")
+    selected_operation = st.sidebar.multiselect("Select Operation(s)", df_merged["Operation"].unique())
+    selected_dates = st.sidebar.multiselect("Select Date(s)", df_merged["CreationDate"].unique())
+
+    # Apply filters to create filtered DataFrame
+    if selected_operation:
+        df_merged = df_merged[df_merged['Operation'].isin(selected_operation)]
+    if selected_dates:
+        df_merged = df_merged[df_merged['CreationDate'].isin(selected_dates)]
+
+    # Group by Date to count occurrences of Operation
+    count_by_date = df_merged.groupby('Date').size().reset_index(name='Count of Operations')
+
+    # Plotting bar chart for
