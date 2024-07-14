@@ -38,7 +38,7 @@ elif page_selection == "Courses":
     st.write("""
         Learn to create interactive dashboards and reports with Power BI. Our course covers data modeling, DAX, and Power BI service.
         - Duration: 4 weeks
-        - Price: $300
+        - Price: ₹10000
     """)
     st.header("SQL")
     st.write("""
