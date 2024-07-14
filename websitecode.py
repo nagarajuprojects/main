@@ -1,101 +1,213 @@
-#coding
-import requests
-import streamlit as st
-from streamlit_lottie import st_lottie
-from PIL import Image
-# Find more emojis here: https://www.webfx.com/tools/emoji-cheat-sheet/
-st.set_page_config(page_title="My Webpage", page_icon=":tada:", layout="wide")
-def load_lottieurl(url):
-    r = requests.get(url)
-    if r.status_code != 200:
-        return None
-    return r.json()
-# Use local CSS
-def local_css(file_name):
-    with open(file_name) as f:
-        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-local_css("style/style.css")
-# ---- LOAD ASSETS ----
-lottie_coding = load_lottieurl("https://assets5.lottiefiles.com/packages/lf20_fcfjwiyb.json")
-img_contact_form = Image.open("images/yt_contact_form.png")
-img_lottie_animation = Image.open("images/yt_lottie_animation.png")
-# ---- HEADER SECTION ----
-with st.container():
-    st.subheader("Hi, I am Sven :wave:")
-    st.title("A Data Analyst From Germany")
-    st.write(
-        "I am passionate about finding ways to use Python and VBA to be more efficient and effective in business settings."
-    )
-    st.write("[Learn More >](https://pythonandvba.com)")
-# ---- WHAT I DO ----
-with st.container():
-    st.write("---")
-    left_column, right_column = st.columns(2)
-    with left_column:
-        st.header("What I do")
-        st.write("##")
-        st.write(
-            """
-            On my YouTube channel I am creating tutorials for people who:
-            - are looking for a way to leverage the power of Python in their day-to-day work.
-            - are struggling with repetitive tasks in Excel and are looking for a way to use Python and VBA.
-            - want to learn Data Analysis & Data Science to perform meaningful and impactful analyses.
-            - are working with Excel and found themselves thinking - "there has to be a better way."
-If this sounds interesting to you, consider subscribing and turning on the notifications, so you don’t miss any content.
-            """
-        )
-        st.write("[YouTube Channel >](https://youtube.com/c/CodingIsFun)")    
-      with right_column:
-        st_lottie(lottie_coding, height=300, key="coding")
-# ---- PROJECTS ----
-with st.container():    
-  st.write("---")    
-  st.header("My Projects")    
-  st.write("##")    
-  image_column, text_column = st.columns((1, 2))    
-  with image_column:        
-    st.image(img_lottie_animation)    
-    with text_column:
-        st.subheader("Integrate Lottie Animations Inside Your Streamlit App")
-        st.write(
-            """
-            Learn how to use Lottie Files in Streamlit!
-            Animations make our web app more engaging and fun, and Lottie Files are the easiest way to do it!
-            In this tutorial, I'll show you exactly how to do it
-            """
-        )
-        st.markdown("[Watch Video...](https://youtu.be/TXSOitGoINE)")
-with st.container():
-    image_column, text_column = st.columns((1, 2))
-    with image_column:
-        st.image(img_contact_form)
-    with text_column:
-        st.subheader("How To Add A Contact Form To Your Streamlit App")
-        st.write(
-            """
-            Want to add a contact form to your Streamlit website?
-            In this video, I'm going to show you how to implement a contact form in your Streamlit app using the free service ‘Form Submit’.
-            """
-        )
-        st.markdown("[Watch Video...](https://youtu.be/FOULV9Xij_8)")
 
-# ---- CONTACT ----
-with st.container():
-    st.write("---")
-    st.header("Get In Touch With Me!")
-    st.write("##")
-# Documention: https://formsubmit.co/ !!! CHANGE EMAIL ADDRESS !!!
-    contact_form = """
-    <form action="https://formsubmit.co/YOUR@MAIL.COM" method="POST">
-        <input type="hidden" name="_captcha" value="false">
-        <input type="text" name="name" placeholder="Your name" required>
-        <input type="email" name="email" placeholder="Your email" required>
-        <textarea name="message" placeholder="Your message here" required></textarea>
-        <button type="submit">Send</button>
-    </form>
-    """
-    left_column, right_column = st.columns(2)
-    with left_column:
-        st.markdown(contact_form, unsafe_allow_html=True)
-    with right_column:
-        st.empty()
+
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+
+CORRECT_USER_ID = "Admin"
+CORRECT_PASSWORD = "123"
+
+# Page configuration should be set before any Streamlit elements are created
+st.set_page_config(
+    page_title="Operations",
+    page_icon="🧊",
+    layout="wide",
+    initial_sidebar_state="expanded",
+    menu_items={
+        'Get Help': 'https://www.extremelycoolapp.com/help',
+        'Report a bug': "https://www.extremelycoolapp.com/bug",
+        'About': "# This is a header. This is an *extremely* cool app!"
+    }
+)
+
+# Function to display the main content after login
+def display_main_content():
+    # Load the primary CSV file
+    try:
+        df = pd.read_csv("inputfile.csv")
+    except FileNotFoundError:
+        st.error("The file 'inputfile.csv' was not found.")
+        return
+
+    # Load the secondary CSV file
+    try:
+        df1 = pd.read_csv("inputfile1.csv")
+    except FileNotFoundError:
+        st.warning("The file 'inputfile1.csv' was not found. Proceeding with only 'inputfile.csv'.")
+        df1 = pd.DataFrame()  # Empty DataFrame if the file is not found
+
+    # Check if the necessary columns exist
+    if 'UserId' not in df.columns:
+        st.error("The column 'UserId' is missing from 'inputfile.csv'.")
+        return
+    if not df1.empty and 'Userid' not in df1.columns:
+        st.error("The column 'Userid' is missing from 'inputfile1.csv'.")
+        return
+
+    # Perform a left join if the secondary DataFrame is not empty
+    if not df1.empty:
+        df_merged = pd.merge(df, df1, left_on='UserId', right_on='Userid', how='left')
+    else:
+        df_merged = df
+
+    st.write(df_merged)
+
+    df_merged['Date'] = pd.to_datetime(df_merged['CreationDate']).dt.date
+    df1_copy = df_merged.copy()
+
+    # Group by UserId, Date, and Operation to count occurrences
+    summary_df = df1_copy.groupby(['Fullname','UserId', 'Date', 'Operation']).size().reset_index(name='Count of Operations')
+
+    final_summary_df = summary_df.groupby('Fullname').agg({
+        'UserId':'first',
+        'Date': 'first',
+        'Operation': 'first',
+        'Count of Operations': 'sum'
+    }).reset_index()
+
+    st.subheader("Operation Count by UserId, Date, and Operation")
+    st.table(final_summary_df[['Fullname','UserId', 'Date', 'Operation', 'Count of Operations']])
+
+    # Sidebar filters for Operation and CreationDate
+    st.sidebar.header("Filters")
+    selected_operation = st.sidebar.multiselect("Select Operation(s)", df_merged["Operation"].unique())
+    selected_dates = st.sidebar.multiselect("Select Date(s)", df_merged["CreationDate"].unique())
+
+    # Apply filters to create filtered DataFrame
+    if selected_operation:
+        df_merged = df_merged[df_merged['Operation'].isin(selected_operation)]
+    if selected_dates:
+        df_merged = df_merged[df_merged['CreationDate'].isin(selected_dates)]
+
+    # Group by Date to count occurrences of Operation
+    count_by_date = df_merged.groupby('Date').size().reset_index(name='Count of Operations')
+
+    # Plotting bar chart for Count of Operations by CreationDate
+    st.subheader("Count of Operations by Creation Date")
+    fig_bar = px.bar(count_by_date, x='Date', y='Count of Operations', text='Count of Operations',
+                     template='seaborn', title='Count of Operations by Creation Date')
+    fig_bar.update_traces(texttemplate='%{text:.2s}', textposition='outside')
+    fig_bar.update_layout(xaxis_title='Creation Date', yaxis_title='Count of Operations')
+    st.plotly_chart(fig_bar, use_container_width=True)
+
+    # Group by Operation to sum RecordType
+    record_type_summary = df_merged.groupby('Operation')['RecordType'].sum().reset_index()
+
+    # Plotting pie chart for Sum of RecordType by Operation
+    st.subheader("Sum of RecordType by Operation")
+    fig_pie = px.pie(record_type_summary, values='RecordType', names='Operation', 
+                     title='Sum of RecordType by Operation', hole=0.5)
+    fig_pie.update_traces(textposition='inside', textinfo='percent+label')
+    st.plotly_chart(fig_pie, use_container_width=True)
+
+# Function to display another page content
+def display_another_page():
+    st.title("Page 2")
+    
+
+    # Load the primary CSV file
+    try:
+        df = pd.read_csv("inputfile.csv")
+    except FileNotFoundError:
+        st.error("The file 'inputfile.csv' was not found.")
+        return
+
+    # Load the secondary CSV file
+    try:
+        df1 = pd.read_csv("inputfile1.csv")
+    except FileNotFoundError:
+        st.warning("The file 'inputfile1.csv' was not found. Proceeding with only 'inputfile.csv'.")
+        df1 = pd.DataFrame()  # Empty DataFrame if the file is not found
+
+    # Check if the necessary columns exist
+    if 'UserId' not in df.columns:
+        st.error("The column 'UserId' is missing from 'inputfile.csv'.")
+        return
+    if not df1.empty and 'Userid' not in df1.columns:
+        st.error("The column 'Userid' is missing from 'inputfile1.csv'.")
+        return
+
+    # Perform a left join if the secondary DataFrame is not empty
+    if not df1.empty:
+        df_merged = pd.merge(df, df1, left_on='UserId', right_on='Userid', how='left')
+    else:
+        df_merged = df
+
+    # Check if the 'Full Name' column exists
+    if 'Fullname' not in df_merged.columns:
+        st.error("The column 'Full Name' is missing from the merged DataFrame.")
+        return
+
+    # Sidebar filter for Full Name
+    
+    selected_full_names = st.sidebar.multiselect("Select Full Name(s)", df_merged["Fullname"].unique())
+
+    # Apply Full Name filter to the DataFrame
+    if selected_full_names:
+        df_filtered = df_merged[df_merged['Fullname'].isin(selected_full_names)]
+    else:
+        df_filtered = df_merged
+
+    # Group by Full Name to count occurrences of Operation
+    count_by_full_name = df_filtered.groupby('Fullname').size().reset_index(name='Count of Operations')
+
+    # Plotting bar chart for Count of Operations by Full Name
+    
+    fig_bar_full_name = px.bar(count_by_full_name, x='Fullname', y='Count of Operations', text='Count of Operations',
+                               template='seaborn', title='Count of Operations by Full Name')
+    fig_bar_full_name.update_traces(texttemplate='%{text:.2s}', textposition='outside')
+    fig_bar_full_name.update_layout(xaxis_title='Fullname', yaxis_title='Count of Operations')
+    st.plotly_chart(fig_bar_full_name, use_container_width=True)
+
+# Initialize page state
+if "loggedin" not in st.session_state:
+    st.session_state.loggedin = False
+
+# Check if logged_in query parameter is set to True
+query_params = st.experimental_get_query_params()
+if query_params.get('logged_in') == ['true']:
+    st.session_state.loggedin = True
+
+# Check if logged in and display content accordingly
+if st.session_state.loggedin:
+    # Navigation links in the sidebar
+    st.sidebar.header("Navigation")
+
+    # Determine which page is active based on query parameters
+    is_page_main = query_params.get('page', ['main'])[0] == 'main'
+    is_page_another = query_params.get('page', ['main'])[0] == 'another'
+
+    # Highlight the active button based on the current page
+    if is_page_main:
+        page1_button = st.sidebar.button("Page 1", key='page1_button', help="Go to Page 1", on_click=lambda: st.experimental_set_query_params(logged_in=True, page="main"))
+        page2_button = st.sidebar.button("Page 2", key='page2_button', help="Go to Page 2", on_click=lambda: st.experimental_set_query_params(logged_in=True, page="another"))
+    elif is_page_another:
+        page1_button = st.sidebar.button("Page 1", key='page1_button', help="Go to Page 1", on_click=lambda: st.experimental_set_query_params(logged_in=True, page="main"))
+        page2_button = st.sidebar.button("Page 2", key='page2_button', help="Go to Page 2", on_click=lambda: st.experimental_set_query_params(logged_in=True, page="another"))
+
+    if is_page_main:
+        display_main_content()
+    elif is_page_another:
+        display_another_page()
+
+else:
+    st.sidebar.header("Login")
+
+    # Create input fields for User ID and Password
+    user_id = st.text_input("User ID")
+    password = st.text_input("Password", type="password")
+
+    # Add a login button
+    login_button = st.button("Login")
+
+    # Check credentials upon login button press
+    if login_button:
+        if user_id == CORRECT_USER_ID and password == CORRECT_PASSWORD:
+            st.success("Logged in successfully!")
+            st.session_state.loggedin = True
+            # Redirect to another page after successful login
+            st.experimental_set_query_params(logged_in=True)  # Set query params to indicate logged in
+            st.experimental_rerun()  # Rerun the script to reflect the new state
+        else:
+            st.error("Incorrect User ID or Password. Please try again.")
+
