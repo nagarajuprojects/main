@@ -1,23 +1,18 @@
 import streamlit as st
-from streamlit_option_menu import option_menu
 import requests
-import docx
-from io import BytesIO
+import io
+from docx import Document
+from streamlit_option_menu import option_menu
 
-# Function to fetch content from GitHub
-def fetch_docx_from_github(file_url):
-    try:
-        response = requests.get(file_url)
-        response.raise_for_status()  # Raise exception for bad response status
-        docx_file = BytesIO(response.content)
-        doc = docx.Document(docx_file)
-        full_text = []
-        for para in doc.paragraphs:
-            full_text.append(para.text)
-        return "\n".join(full_text)
-    except requests.exceptions.RequestException as e:
-        st.error(f"Error fetching document: {e}")
-        return None
+# Function to fetch content from docx file URL
+def fetch_docx_content(docx_url):
+    response = requests.get(docx_url)
+    docx_file = io.BytesIO(response.content)
+    doc = Document(docx_file)
+    full_text = []
+    for para in doc.paragraphs:
+        full_text.append(para.text)
+    return "\n".join(full_text)
 
 # Page configuration
 st.set_page_config(
@@ -27,17 +22,12 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# GitHub URLs for your docx files
-excel_url = "https://raw.githubusercontent.com/nagarajuprojects/main/excel.docx"
-power_bi_url = "https://raw.githubusercontent.com/nagarajuprojects/main/powerbisyllabus.docx"
-sql_url = "https://raw.githubusercontent.com/nagarajuprojects/main/sqlcoursesyllabus.docx"
-
 # Sidebar for navigation
 with st.sidebar:
     page_selection = option_menu(
         "Navigation", 
-        ["Home", "Courses", "Contact"],
-        icons=["house", "book", "envelope"],
+        ["Home", "Courses", "Content", "Contact"],
+        icons=["house", "book", "file-text", "envelope"],
         menu_icon="cast", 
         default_index=0,
         styles={
@@ -47,10 +37,6 @@ with st.sidebar:
             "nav-link-selected": {"background-color": "#0c5a8c"},
         }
     )
-
-# Clear state when changing pages
-if page_selection != "Courses":
-    st.session_state.pop("selected_course", None)
 
 # Home Page
 if page_selection == "Home":
@@ -73,29 +59,44 @@ if page_selection == "Home":
 # Courses Page
 elif page_selection == "Courses":
     st.title("Our Courses @ ₹15000")
-    course_selection = st.selectbox("Select a Course", ["Excel", "Power BI", "SQL"])
-
-    if course_selection == "Excel":
-        st.session_state.selected_course = "Excel"
-    elif course_selection == "Power BI":
-        st.session_state.selected_course = "Power BI"
-    elif course_selection == "SQL":
-        st.session_state.selected_course = "SQL"
+    st.header("Power BI")
+    st.write("""
+        Learn to create interactive dashboards and reports with Power BI. Our course covers data modeling, DAX, and Power BI service.
+        - **Duration**: 4 weeks
+    """)
+    st.header("SQL")
+    st.write("""
+        Master SQL for database management and data manipulation. Our course includes SQL queries, joins, subqueries, and database design.
+        - **Duration**: 4 weeks
+    """)
+    st.header("Excel")
+    st.write("""
+        Become an Excel expert with our training. Learn advanced formulas, pivot tables, data analysis, and VBA for automation.
+        - **Duration**: 3 weeks
+    """)
+    st.header("VBA")
+    st.write("""
+        Automate your Excel tasks with VBA. Our course covers VBA programming, macros, and creating custom functions.
+        - **Duration**: 2 weeks
+    """)
 
 # Content Page
 elif page_selection == "Content":
-    st.title(f"{st.session_state.selected_course} Course Content")
-    if st.session_state.selected_course == "Excel":
-        content = fetch_docx_from_github(excel_url)
-    elif st.session_state.selected_course == "Power BI":
-        content = fetch_docx_from_github(power_bi_url)
-    elif st.session_state.selected_course == "SQL":
-        content = fetch_docx_from_github(sql_url)
-    
-    if content:
-        st.write(content)
-    else:
-        st.warning("Failed to fetch course content. Please try again later.")
+    st.title("Content")
+    st.header("Excel Course Syllabus")
+    excel_docx_url = "https://raw.githubusercontent.com/nagarajuprojects/main/excel.docx"
+    excel_content = fetch_docx_content(excel_docx_url)
+    st.write(excel_content)
+
+    st.header("Power BI Syllabus")
+    powerbi_docx_url = "https://raw.githubusercontent.com/nagarajuprojects/main/powerbisyllabus.docx"
+    powerbi_content = fetch_docx_content(powerbi_docx_url)
+    st.write(powerbi_content)
+
+    st.header("SQL Course Syllabus")
+    sql_docx_url = "https://raw.githubusercontent.com/nagarajuprojects/main/sqlcoursesyllabus.docx"
+    sql_content = fetch_docx_content(sql_docx_url)
+    st.write(sql_content)
 
 # Contact Page
 elif page_selection == "Contact":
