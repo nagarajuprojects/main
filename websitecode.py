@@ -1,10 +1,14 @@
 import streamlit as st
 from streamlit_option_menu import option_menu
+import requests
 import docx
+from io import BytesIO
 
-# Function to read content from docx files
-def read_docx(excel.docx):
-    doc = docx.Document("https://github.com/nagarajuprojects/main/tree/main")
+# Function to fetch content from GitHub
+def fetch_docx_from_github(file_url):
+    response = requests.get(file_url)
+    docx_file = BytesIO(response.content)
+    doc = docx.Document(docx_file)
     full_text = []
     for para in doc.paragraphs:
         full_text.append(para.text)
@@ -17,6 +21,11 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# GitHub URLs for your docx files
+excel_url = "https://raw.githubusercontent.com/nagarajuprojects/repository/main/excel.docx"
+power_bi_url = "https://raw.githubusercontent.com/nagarajuprojects/repository/main/powerbisyllabus.docx"
+sql_url = "https://raw.githubusercontent.com/nagarajuprojects/repository/main/sqlcoursesyllabus.docx"
 
 # Sidebar for navigation
 with st.sidebar:
@@ -59,17 +68,17 @@ elif page_selection == "Courses":
 
     if course_selection == "Excel":
         st.title("Excel Course Content")
-        excel_content = read_docx("excel.docx")
+        excel_content = fetch_docx_from_github(excel_url)
         st.write(excel_content)
 
     elif course_selection == "Power BI":
         st.title("Power BI Course Content")
-        power_bi_content = read_docx("powerbisyllabus.docx")
+        power_bi_content = fetch_docx_from_github(power_bi_url)
         st.write(power_bi_content)
 
     elif course_selection == "SQL":
         st.title("SQL Course Content")
-        sql_content = read_docx("sqlcoursesyllabus.docx")
+        sql_content = fetch_docx_from_github(sql_url)
         st.write(sql_content)
 
 # Content Page
