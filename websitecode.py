@@ -16,7 +16,7 @@ page_selection = st.sidebar.radio("Go to", pages)
 # Home Page
 if page_selection == "Home":
     st.title("Welcome to Power BI, Excel, SQL & Cloud Trainings")
-    st.image("https://example.com/logo.png", width=250)  # Replace with your logo URL
+    st.image("pbiexellogo.png", width=250)  # Replace with your logo URL
     st.header("Learn Power BI, SQL, Excel, VBA")
     st.write("""
         We offer comprehensive training in Power BI, SQL, Excel, and VBA. Our courses are designed to help you master these tools and become proficient in data analysis and visualization. 
