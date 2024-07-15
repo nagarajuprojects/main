@@ -1,18 +1,5 @@
 import streamlit as st
-import requests
-import io
-from docx import Document
 from streamlit_option_menu import option_menu
-
-# Function to fetch content from docx file URL
-def fetch_docx_content(docx_url):
-    response = requests.get(docx_url)
-    docx_file = io.BytesIO(response.content)
-    doc = Document(docx_file)
-    full_text = []
-    for para in doc.paragraphs:
-        full_text.append(para.text)
-    return "\n".join(full_text)
 
 # Page configuration
 st.set_page_config(
@@ -26,8 +13,8 @@ st.set_page_config(
 with st.sidebar:
     page_selection = option_menu(
         "Navigation", 
-        ["Home", "Courses", "Content", "Contact"],
-        icons=["house", "book", "file-text", "envelope"],
+        ["Home", "Courses", "Contact"],
+        icons=["house", "book", "envelope"],
         menu_icon="cast", 
         default_index=0,
         styles={
@@ -79,24 +66,6 @@ elif page_selection == "Courses":
         Automate your Excel tasks with VBA. Our course covers VBA programming, macros, and creating custom functions.
         - **Duration**: 2 weeks
     """)
-
-# Content Page
-elif page_selection == "Content":
-    st.title("Content")
-    st.header("Excel Course Syllabus")
-    excel_docx_url = "https://raw.githubusercontent.com/nagarajuprojects/main/excel.docx"
-    excel_content = fetch_docx_content(excel_docx_url)
-    st.write(excel_content)
-
-    st.header("Power BI Syllabus")
-    powerbi_docx_url = "https://raw.githubusercontent.com/nagarajuprojects/main/powerbisyllabus.docx"
-    powerbi_content = fetch_docx_content(powerbi_docx_url)
-    st.write(powerbi_content)
-
-    st.header("SQL Course Syllabus")
-    sql_docx_url = "https://raw.githubusercontent.com/nagarajuprojects/main/sqlcoursesyllabus.docx"
-    sql_content = fetch_docx_content(sql_docx_url)
-    st.write(sql_content)
 
 # Contact Page
 elif page_selection == "Contact":
