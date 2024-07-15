@@ -1,22 +1,33 @@
-
 import streamlit as st
+from streamlit_option_menu import option_menu
 
 # Page configuration
 st.set_page_config(
-    page_title="Power BI, Excel, SQL & Cloud Trainings",
-    page_icon="📊",
+    page_title="BI 2 AI Technologies Training",
+    page_icon="pbiexellogo.png",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
 # Sidebar for navigation
-st.sidebar.title("Navigation")
-pages = ["Home", "Courses", "Contact"]
-page_selection = st.sidebar.radio("Go to", pages)
+with st.sidebar:
+    page_selection = option_menu(
+        "Navigation", 
+        ["Home", "Courses", "Contact"],
+        icons=["house", "book", "envelope"],
+        menu_icon="cast", 
+        default_index=0,
+        styles={
+            "container": {"padding": "5px", "background-color": "#f0f2f6"},
+            "icon": {"color": "blue", "font-size": "25px"}, 
+            "nav-link": {"font-size": "16px", "text-align": "left", "margin": "0px", "--hover-color": "#eee"},
+            "nav-link-selected": {"background-color": "#0c5a8c"},
+        }
+    )
 
 # Home Page
 if page_selection == "Home":
-    st.title("Welcome to Power BI, Excel, SQL & Cloud Trainings")
+    st.title("Welcome to BI 2 AI Technologies Training")
     st.image("pbiexellogo.png", width=250)  # Replace with your logo URL
     st.header("Learn Power BI, SQL, Excel, VBA")
     st.write("""
@@ -38,22 +49,22 @@ elif page_selection == "Courses":
     st.header("Power BI")
     st.write("""
         Learn to create interactive dashboards and reports with Power BI. Our course covers data modeling, DAX, and Power BI service.
-        - Duration: 4 weeks
+        - **Duration**: 4 weeks
     """)
     st.header("SQL")
     st.write("""
         Master SQL for database management and data manipulation. Our course includes SQL queries, joins, subqueries, and database design.
-        - Duration: 4 weeks
+        - **Duration**: 4 weeks
     """)
     st.header("Excel")
     st.write("""
         Become an Excel expert with our training. Learn advanced formulas, pivot tables, data analysis, and VBA for automation.
-        - Duration: 3 weeks
+        - **Duration**: 3 weeks
     """)
     st.header("VBA")
     st.write("""
         Automate your Excel tasks with VBA. Our course covers VBA programming, macros, and creating custom functions.
-        - Duration: 2 weeks
+        - **Duration**: 2 weeks
     """)
 
 # Contact Page
@@ -78,7 +89,7 @@ st.markdown(
         position: fixed;
         bottom: 0;
         width: 100%;
-        background-color: #f1f1f1;
+        background-color: #f0f2f6;
         text-align: center;
         padding: 10px;
     }
