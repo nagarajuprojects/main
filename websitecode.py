@@ -31,6 +31,14 @@ if page_selection == "Home":
         - Certification
     """)
 
+    # Search bar
+    search_term = st.text_input("Search", "")
+
+    # Example of search functionality (customize as needed)
+    if search_term:
+        st.subheader(f"Search Results for '{search_term}'")
+        st.write("Example search results can be displayed here based on your content.")
+
 # Courses Page
 elif page_selection == "Courses":
     st.title("Our Courses @ ₹15000")
@@ -56,7 +64,6 @@ elif page_selection == "Courses":
     """)
 
 # Contact Page
-
 elif page_selection == "Contact":
     st.title("Contact Us")
     st.write("We'd love to hear from you! Fill out the form below to get in touch.")
