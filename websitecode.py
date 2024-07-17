@@ -16,7 +16,7 @@ page_selection = st.sidebar.radio("Go to", pages)
 # Home Page
 if page_selection == "Home":
     st.title("Welcome to Power BI, Excel, SQL & Cloud Trainings")
-    st.image("https://example.com/logo.png", width=250)  # Replace with your logo URL
+    st.image("pbiexellogo.png", width=250)  # Replace with your logo URL
     st.header("Learn Power BI, SQL, Excel, VBA")
     st.write("""
         We offer comprehensive training in Power BI, SQL, Excel, and VBA. Our courses are designed to help you master these tools and become proficient in data analysis and visualization. 
@@ -33,30 +33,26 @@ if page_selection == "Home":
 
 # Courses Page
 elif page_selection == "Courses":
-    st.title("Our Courses")
+    st.title("Our Courses @ ₹15000")
     st.header("Power BI")
     st.write("""
         Learn to create interactive dashboards and reports with Power BI. Our course covers data modeling, DAX, and Power BI service.
         - Duration: 4 weeks
-        - Price: $300
     """)
     st.header("SQL")
     st.write("""
         Master SQL for database management and data manipulation. Our course includes SQL queries, joins, subqueries, and database design.
         - Duration: 4 weeks
-        - Price: $250
     """)
     st.header("Excel")
     st.write("""
         Become an Excel expert with our training. Learn advanced formulas, pivot tables, data analysis, and VBA for automation.
         - Duration: 3 weeks
-        - Price: $200
     """)
     st.header("VBA")
     st.write("""
         Automate your Excel tasks with VBA. Our course covers VBA programming, macros, and creating custom functions.
         - Duration: 2 weeks
-        - Price: $150
     """)
 
 # Contact Page
