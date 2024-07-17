@@ -56,14 +56,16 @@ elif page_selection == "Courses":
     """)
 
 # Contact Page
+
 elif page_selection == "Contact":
     st.title("Contact Us")
     st.write("We'd love to hear from you! Fill out the form below to get in touch.")
     
     with st.form("contact_form"):
-        name = st.text_input("Name")
-        email = st.text_input("Email")
+        name = st.text_input("Name", value="Chiranjeevi Kudipudi")
+        email = st.text_input("Email", value="dnraju478@gmail.com")
         message = st.text_area("Message")
+        mobile_number = st.text_input("Mobile Number", value="9948140217")
         
         submitted = st.form_submit_button("Submit")
         if submitted:
